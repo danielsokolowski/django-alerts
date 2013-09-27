@@ -1,0 +1,9 @@
+### Common ignores
+# python byte code file
+*.pyc
+
+# WebDAV file system cache
+.DAV/
+
+### Project ignores
+alerts-cron.d-entry*-last-run.log

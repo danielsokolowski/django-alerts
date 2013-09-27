@@ -1,0 +1,78 @@
+= django-alerts (internally known as django-notifications)
+
+The word 'simple' is over used incorrectly by numerous django applications - as it has been my experience - and so 
+we shall only say *django-alerts* aims to be just plain *obvious* in how to do arbitrary user alerts - having said 
+that do keep in mind that this is an initial release that minimally needs documentation polishing. 
+
+{{https://raw.github.com/danielsokolowski/django-alerts/master/django-alerts-admin-page.jpg|Default django-alerts admin page}}
+
+The astute will note the obvious: that query_filter_kwargs is in a queryset syntax, the astuter will conclude that that
+is the core of the alert system, and the astutest will realize the following:
+
+With the ability to link to any object through a 'GenericForeginKey' and an ability to specify an arbitrary query filter
+we are able to handle a vast number of cases, for example:
+
+	* need to know if a user signs up, that's a plain User.objects.filter() query. 
+	* a new comment is posted, something like Comment.objects.filter(post__pk = 2) would work
+	* a new image that contains a specific title - Image.objects.filter(name__in = 'foo')
+	* a new user verified their email - perhaps UserProfile.objects.filter(email_verified = True) will do.
+
+Anything that can be turned into a queryset filter problem which results in a growing set (i.e. the PK is an AutoField
+field) being returned can be made into an alert.
+
+= A real world case
+
+We needed to provide users the ability to create arbitrary alerts on posted items, let's call these 'Offers'; using 
+our django-alerts this was accomplished as follows which should give you a general idea on how to get started, 
+but if in doubt please contact myself or examine the source code:
+
+	* Placed a copy of 'alerts' into our project root and added it to our 'INSTALED_APPS' setting.
+	* Tied in our alerts URLs by adding: 'url(r'^alerts/', include('alerts.urls')),', which added following urls:
+		
+{{{
+	url(r'^$', AlertIndexView.as_view(), name='AlertIndexView'),
+	url(r'^create/$', AlertCreateView.as_view(), name='AlertCreateView'),
+	url(r'^update/(?P<pk>[0-9]+)/$', AlertUpdateView.as_view(), name='AlertUpdateView'),
+}}}
+
+	* Created a custom update/create forms named 'AlertOfferUpdateForm' and 'AlertOfferCreateForm' and 
+	  placed it in 'alerts/forms.py'. 
+		** When the view 'AlertUpdateView' is called it dynamically loads a form named based on the 'latest_object_content_type'
+		   value so when an 'offer' model is referenced in the alert the form loaded will be named 'AlertOfferUpdateForm'
+		** Creating a form is relatively a straightforward process when one maps model fields directly onto allowed 
+		   QuerySet filter kwargs allowed; that is if a model has 'title' (CharField) or 'product' (ForeginKey)
+		   fields the form fields should be named 'title' and 'product__pk' respectively.  
+		** If we had model 'User' referenced then the code would attempt to load 'AlertUserUpdateForm'.
+		** We are force to develop forms as needed since providing a generic edit form opens up security issues. 
+		** We only needed 'Offer' alerts so we tied 'AlertOfferCreateForm' directly into the 'AlertCreateView'.
+	* Updated template files in 'alerts/templates/alerts' as needed.
+	* Linked our 'alerts/alerts-cron.d*' files into '/etc/cron.d' and ensured it runs - this executes
+	  the 'python manage.py sendalerts' command every 15 minutes.
+
+
+=== Screenshots from above implementation
+
+{{https://raw.github.com/danielsokolowski/django-alerts/master/django-alerts-sample-email-alert.jpg|Sample default alert email template}}
+
+{{https://raw.github.com/danielsokolowski/django-alerts/master/django-alerts-offer-alert-form.jpg|Implemented AlertOfferUpdateForm}}
+
+= Installation
+
+Since it is impossible to assume your template layouts and you still need custom alert forms for your models consider 
+'django-alerts' to a be prototype foundation for your project needs. I suggest you just copy the 'alerts' folder into 
+your django project root, add it to your 'INSTALLED_APPS', tie it into your projects 'urls.py' file by adding 
+'url(r'^alerts/', include('alerts.urls')),' and just start hacking at it.
+
+{{{
+cd ~
+git clone https://github.com/danielsokolowski/django-alerts.git
+cp django-alerts/alerts <PATH TO YOUR PROJECT ROOT>
+}}}
+
+== AUTHORS
+
+* Daniel Sokolowski (@danielsokolow)
+
+== LICENSE
+
+Free for all - but feel free to give me a credit in your README and 'humans.txt' site file.  

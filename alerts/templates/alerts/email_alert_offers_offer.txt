@@ -1,0 +1,24 @@
+Hello {{user.userprofile}},
+
+Below is a list of new items since {{alert.last_run}} as per your '{{alert.name|safe}}' notification alert setup:
+
+{% for item in queryset %}
+	{{ forloop.counter }}. {{item}} {% if item.get_absolute_url %}- {{SITE_URL}}{{item.get_absolute_url}}{% endif %}  
+{% endfor %} 
+
+
+Lots of love,
+
+--Your Yupi Team
+
+{% comment %}
+Following context variables are available but change code to confirm:
+
+{'alert': self,
+'user': self.user, 
+'queryset': queryset,
+'SITE_URL': settings.SITE_URL
+}), 
+ 
+Note: placing this at top adds line breaks to the email.
+{% endcomment %}

@@ -1,0 +1,17 @@
+# Template cron.d entry to be run by the system to send out alerts, can be used directly as a sym link
+# if folder structures matches; on Debian system symlink this file into your `/etc/cron.d` folder like so
+# 
+# > ln -s /srv/www/django/yupi.ca/src/django-project/alerts/alerts-cron.d-entry \
+#		  /etc/cron.d/yupi-ca-alerts-crond-entry
+#
+# NOTE: can't have dots in cron filenames
+#
+# NOTE: ensure permissions and ownerhsip or otherise WRONG FILE OWNER error: 
+#    -rwxr--r--  1 root root  215 Aug 27 15:01 alerts-cron.d-entry
+#
+# NOTE: you may want to symlink the log file into /var/apache/log/yupi.ca-alerts-cron.d-entry-last-run.log
+
+*/15 * * * * www-data . /srv/www/django/yupi.ca/virtualenv/bin/activate && python /srv/www/django/yupi.ca/src/django-project/manage.py sendalerts > /srv/www/django/yupi.ca/src/django-project/alerts/alerts-cron.d-entry-last-run.log 2>&1 && deactivate
+
+# Real sh doesn't have source, only .. Either change the shell in cron to bash, or use . instead.
+# from: http://stackoverflow.com/a/2975393/913223

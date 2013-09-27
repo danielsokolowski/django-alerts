@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block head_title %}
+Create new Alerts
+{% endblock %}
+
+{% block head_styles %}
+{{ block.super }}
+{% endblock %}
+
+{% block head_scripts %}
+{{ block.super }}
+{% endblock %}
+	
+{% block head_extra %}
+{{ block.super }}
+{% endblock %}
+
+{% block body_page_title_h1 %}
+<span>Create new Alerts</span>
+{% endblock %}
+
+{% block body_page_title_breadcrumbs %}
+{{block.super}}
+{{block.super}}
+<li>&rsaquo; <a href="./">Create new Alerts</a></li>
+{% endblock %}
+
+{% block body_content %}
+	<div class="container clearfix">
+		<!-- begin main content -->
+		<section id="main" class="two-thirds">
+		<form class="content-form" action="./" enctype="multipart/form-data" method="post" accept-charset="utf-8">
+			{% csrf_token %} 
+			{{ form.as_p }} 
+			<input class="button" type="submit" value="Submit" />
+		</form>
+		</section>
+		<!-- end main content -->
+		
+		<!-- begin sidebar -->
+		<aside id="sidebar" class="one-third column-last">
+		
+		
+		<h3>Alert List</h3>
+		<p>Below is a list of your alerts. Click an entry to administer 
+		it or click this <a href="{% url 'AlertCreateView' %}">Create Alert</a> link to create a new alert. </p>
+		
+		<ul class="menu arrow">
+		{% for alert in alert_list %}
+			<li><a href='{{alert.get_absolute_url}}'>{{ alert }}</a></li>
+		{% endfor %}
+		</ul>
+		
+		
+		</aside>
+		<!-- end sidebar -->
+		
+	</div>
+{% endblock %}
+	
+{% block body_footer %}
+	{{ block.super }}	
+{% endblock %}
+
+{% block body_footer_scripts %}
+{{ block.super }}
+{% endblock %}
